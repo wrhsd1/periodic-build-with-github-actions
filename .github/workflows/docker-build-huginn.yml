@@ -1,11 +1,7 @@
 name: Docker build huginn image
 
 on:
-  schedule:
-    - cron: "0 * * * *"
-  push:
-    branches:
-      - master
+  workflow_dispatch:
 
 jobs:
 
@@ -43,13 +39,11 @@ jobs:
           ref: 'master'
           path: 'huginn-git'
           
-      - name: Login to Quay.io
-        if: steps.cache.outputs.cache-hit != 'true'
+      - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          registry: quay.io
-          username: ${{ secrets.QUAY_USERNAME }}
-          password: ${{ secrets.QUAY_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Set up Docker Buildx
         if: steps.cache.outputs.cache-hit != 'true'
@@ -86,6 +80,6 @@ jobs:
         with:
           context: ./huginn-git
           file: ./huginn/single-process/Dockerfile
-          platforms: linux/amd64,linux/arm/v7,linux/arm64/v8
+          platforms: linux/amd64,linux/arm64/v8
           push: true
-          tags: quay.io/unixfox/huginn-single-process:latest, quay.io/unixfox/huginn-single-process:build-${{ env.timestamp }}
+          tags: wrhsd/huginn-single-process:latest, wrhsd/huginn-single-process:build-${{ env.timestamp }}
